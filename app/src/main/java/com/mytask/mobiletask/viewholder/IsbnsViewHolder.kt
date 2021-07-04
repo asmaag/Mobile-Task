@@ -8,7 +8,11 @@ import com.mytask.mobiletask.databinding.ItemIsbnBinding
 
 
 class IsbnsViewHolder (val binding: ItemIsbnBinding) : RecyclerView.ViewHolder(binding.root) {
-
+/*
+   set text of isbn and image
+   set flag to default false and return error image (can changed to check on lisnners of error and hide image )
+   according to required logic
+ */
     fun bind(isbn: String) {
         binding.tvTitleIsbn.text = isbn
             Glide.with(itemView.context)

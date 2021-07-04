@@ -61,15 +61,12 @@ class DocumentsList : AppCompatActivity(),OnItemClickListener {
         ).get(DocumentViewModel::class.java)
     }
 
-    private fun setListenners(){
-        databinding.searchTV.doAfterTextChanged { editable ->
-            editable?.let { applaySearch(it) }
-        }
-        databinding.noNetworkLayout.retry_button.setOnClickListener{
-            trySearchAgain()
-        }
-    }
 
+/*
+     this for set adapter t recycle view and
+     to add on scroll in recycle view to handle Pagination add flag "isLoading"
+     to prevent scroll view to git another page before first page already loaded
+ */
     private fun setAdapterToRecycleView() {
         databinding.searchTV.requestFocus()
         documentsAdapter = DocumentsAdapter(this)
@@ -94,8 +91,14 @@ class DocumentsList : AppCompatActivity(),OnItemClickListener {
 
         });
     }
-
-    private fun applaySearch(editable: Editable) {
+/*
+     apply search when click on typing of edit text  type of
+     general search for query search typed by user
+     another type is (Author ) to search by author another type(Title) to search by title
+     after search by title or author name  when clear search area return to General type
+     (can change that depend on required  logic)
+ */
+    private fun applySearch(editable: Editable) {
         page = 1;
         if (editable.toString() != "") {
             showLoading();
@@ -107,17 +110,28 @@ class DocumentsList : AppCompatActivity(),OnItemClickListener {
         }
     }
 
+
+    /*
+       to get Data and perform search after retrun from screen document details
+        by author name or document's title
+     */
+
     private fun setLauncherResult() {
         launcher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
                 if (result.resultCode == Activity.RESULT_OK) {
                     val returnString: String = result.data?.getStringExtra(Constants.Search_KEY)!!
-                    Log.d("tttttt",returnString);
                     searchType = result.data?.getStringExtra(Constants.TYPE_SEARCH)!!
                     databinding.searchTV.setText(returnString)
                 }
             }
     }
+/*
+       to observe on data that get from viewmodel which can be documents list or error msg
+       handle error can be change according to error code
+       Failure error is general can change to read msg from api if exist ,
+       ServerError  and Network error
+     */
 
     private fun observeOnData() {
         viewModel.docsList.observe(this, Observer {
@@ -130,7 +144,6 @@ class DocumentsList : AppCompatActivity(),OnItemClickListener {
                 databinding.searchResultRV.visibility = View.VISIBLE
                 databinding.noDataLayout.visibility = View.GONE
                 databinding.noNetworkLayout.visibility = View.GONE
-
                 documentsAdapter.setDocumentsList(it)
                 page++
             }
@@ -152,6 +165,14 @@ class DocumentsList : AppCompatActivity(),OnItemClickListener {
         })
     }
 
+    private fun setListenners(){
+        databinding.searchTV.doAfterTextChanged { editable ->
+            editable?.let { applySearch(it) }
+        }
+        databinding.noNetworkLayout.retry_button.setOnClickListener{
+            trySearchAgain()
+        }
+    }
     private fun showLoading() {
         if (databinding.progressbar.visibility == View.GONE)
             databinding.progressbar.visibility = View.VISIBLE

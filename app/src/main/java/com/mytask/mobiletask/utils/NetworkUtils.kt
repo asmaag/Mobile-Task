@@ -27,10 +27,7 @@ class NetworkUtils {
                     }
                 }
             } else {
-                val activeNetworkInfo = connectivityManager.activeNetworkInfo
-                if (activeNetworkInfo != null && activeNetworkInfo.isConnected) {
-                    return true
-                }
+              return  true
             }
             return false
         }

@@ -17,61 +17,90 @@ import com.mytask.mobiletask.databinding.ActivityDocumentDetailsBinding
 
 class DocumentDetails : AppCompatActivity() {
     private lateinit var adapter: IspnAdapter
-    lateinit var document : Document
+    lateinit var document: Document
     private lateinit var databinding: ActivityDocumentDetailsBinding
     var authersNames = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        databinding = DataBindingUtil.setContentView(this,R.layout.activity_document_details)
+        databinding = DataBindingUtil.setContentView(this, R.layout.activity_document_details)
         setRecycleView()
-        setData()
+        getDataFromIntent()
+        setDocTitle()
+        setDocAuthor()
+        setIsbnsOfDocument()
         setListenners()
     }
 
+    /*
+         get Data From Parcelable object from intent to
+     */
+    private fun getDataFromIntent() {
+        document = intent.getParcelableExtra(Constants.DOCUMENTNME)!!
 
-    fun setRecycleView(){
-        adapter = IspnAdapter();
-        databinding.isbnResultRV.adapter = adapter
     }
 
-    private fun setData() {
-        document = intent.getParcelableExtra(Constants.DOCUMENTNME)!!
+    /*
+    set title of document
+     */
+    private fun setDocTitle() {
+        databinding.docTitleTV.text = document.title
+
+    }
+
+    /*
+       set authors of document
+       if document has more than author
+       represent it all separated by comma
+       if Doc return with no authors
+       hide this field and title of it
+      */
+    private fun setDocAuthor() {
+        if (document.authors != null) {
+            authersNames = document.authors?.joinToString(separator = " , ").toString()
+            databinding.docAuthorsTV.text = authersNames
+
+        } else {
+            databinding.titleAuthorsTV.visibility = View.GONE
+            databinding.docAuthorsTV.visibility = View.GONE
+
+        }
+    }
+
+    /* set Isbn list if exist
+     */
+    private fun setIsbnsOfDocument() {
+        if (document.isbn != null) {
+            adapter.setIsbnsList(document.isbn!!)
+        }
+    }
+
+// to retrun to document list to start serch by author name or title
+    fun setListenners() {
+        databinding.docTitleTV.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra(Constants.Search_KEY, databinding.docTitleTV.text.toString())
+            intent.putExtra(Constants.TYPE_SEARCH, Constants.TYPE_SEARCH_TITLE)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+        databinding.docAuthorsTV.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra(Constants.Search_KEY, databinding.docAuthorsTV.text.toString())
+            intent.putExtra(Constants.TYPE_SEARCH, Constants.TYPE_SEARCH_Author)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+    }
+    fun setRecycleView() {
+        adapter = IspnAdapter();
         databinding.isbnResultRV.addItemDecoration(
             DividerItemDecoration(
                 databinding.isbnResultRV.context,
-                (databinding.isbnResultRV.layoutManager as LinearLayoutManager).orientation)
+                (databinding.isbnResultRV.layoutManager as LinearLayoutManager).orientation
+            )
         )
-        if(document.isbn != null) {
-            adapter.setIsbnsList(document.isbn!!)
-        }
+        databinding.isbnResultRV.adapter = adapter
 
-        databinding.docTitleTV.text = document.title
-        if(document.authors != null) {
-                   authersNames = document.authors?.joinToString(separator = " , ").toString()
-                   databinding.docAuthorsTV.text = authersNames
-
-        }else {
-                   databinding.titleAuthorsTV.visibility = View.GONE
-                   databinding.docAuthorsTV.visibility = View.GONE
-
-        }
-    }
-
-    fun setListenners(){
-        databinding.docTitleTV.setOnClickListener{
-            val intent = Intent()
-            intent.putExtra(Constants.Search_KEY, databinding.docTitleTV.text.toString())
-            intent.putExtra(Constants.TYPE_SEARCH ,Constants.TYPE_SEARCH_TITLE)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
-        }
-        databinding.docAuthorsTV.setOnClickListener{
-            val intent = Intent()
-            intent.putExtra(Constants.Search_KEY, databinding.docAuthorsTV.text.toString())
-            intent.putExtra(Constants.TYPE_SEARCH ,Constants.TYPE_SEARCH_Author)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
-        }
     }
 }
