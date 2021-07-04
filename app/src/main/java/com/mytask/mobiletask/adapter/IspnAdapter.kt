@@ -1,7 +1,5 @@
 package com.mytask.mobiletask.adapter
 
-
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -12,10 +10,8 @@ class IspnAdapter(
 ) : RecyclerView.Adapter<IsbnsViewHolder>() {
 
     var isbns = mutableListOf<String>()
-
     fun setIsbnsList(isbns: List<String>) {
         this.isbns = isbns.toMutableList()
-        Log.d("here","here")
         notifyDataSetChanged()
     }
 
@@ -26,7 +22,9 @@ class IspnAdapter(
         )
     }
 
-
+/*
+   to return max 5 result only
+ */
     override fun getItemCount(): Int {
         if (isbns.size > 5){
             return 5
